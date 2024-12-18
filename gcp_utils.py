@@ -7,7 +7,7 @@ from vertexai.language_models import TextGenerationModel
 
 # Carregar as credenciais do Google Cloud a partir de st.secrets
 # Aqui assumimos que st.secrets["GOOGLE_CREDENTIALS"]["json"] é uma string JSON completa.
-service_account_json = st.secrets["GOOGLE_CREDENTIALS"]["json"]
+service_account_json = st.secrets["GOOGLE_CREDENTIALS"]#["json"]
 service_account_info = json.loads(service_account_json)
 credentials = service_account.Credentials.from_service_account_info(service_account_info)
 
