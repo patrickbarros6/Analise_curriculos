@@ -1,4 +1,4 @@
-streamlit>=1.22.0
+streamlit
 google-cloud-documentai>=3.3.0
 google-cloud-aiplatform>=1.27.0
 vertexai>=0.1.0
