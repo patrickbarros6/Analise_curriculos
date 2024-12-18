@@ -8,7 +8,7 @@ credentials = service_account.Credentials.from_service_account_file('gcpKey/glob
 
 # Inicializar o cliente do Document AI
 documentai_client = documentai.DocumentProcessorServiceClient(credentials=credentials)
-
+# teste 
 # Inicializar o cliente do Vertex AI
 vertexai.init(project='globalhitss-producao', location='us-central1')
 
