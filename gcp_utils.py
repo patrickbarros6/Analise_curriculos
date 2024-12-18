@@ -1,26 +1,31 @@
+import json
+import streamlit as st
 from google.cloud import documentai_v1 as documentai
 from google.oauth2 import service_account
 import vertexai
 from vertexai.language_models import TextGenerationModel
 
-# Configurar as credenciais do GCP
-credentials = service_account.Credentials.from_service_account_file('gcpKey/globalhitss-producao-3e1c6665deca.json')
+# Carregar as credenciais do Google Cloud a partir de st.secrets
+# Aqui assumimos que st.secrets["GOOGLE_CREDENTIALS"]["json"] é uma string JSON completa.
+service_account_json = st.secrets["GOOGLE_CREDENTIALS"]["json"]
+service_account_info = json.loads(service_account_json)
+credentials = service_account.Credentials.from_service_account_info(service_account_info)
 
-# Inicializar o cliente do Document AI
+# Inicializar o cliente do Document AI com as credenciais personalizadas
 documentai_client = documentai.DocumentProcessorServiceClient(credentials=credentials)
-# teste 
-# Inicializar o cliente do Vertex AI
-vertexai.init(project='globalhitss-producao', location='us-central1')
+
+# Inicializar o cliente do Vertex AI com as credenciais personalizadas
+vertexai.init(project='globalhitss-producao', location='us-central1', credentials=credentials)
 
 def process_document(file_path):
     """
     Processa um documento PDF usando o Document AI do GCP.
 
     Args:
-    file_path (str): Caminho para o arquivo PDF.
+        file_path (str): Caminho para o arquivo PDF.
 
     Returns:
-    str: Texto extraído do documento.
+        str: Texto extraído do documento.
     """
     with open(file_path, 'rb') as file:
         content = file.read()
@@ -49,17 +54,17 @@ def process_document(file_path):
             text += "\n"
     return text
 
-def extract_keywords_from_description(description, pergunta='Quais são todas as palavras chaves tecnicas desse texto? Me de uma resposta somente com as palavras separadas por vigula', key_word=True):
+def extract_keywords_from_description(description, pergunta='Quais são todas as palavras-chave técnicas desse texto? Me dê uma resposta somente com as palavras separadas por vírgula.', key_word=True):
     """
     Extrai palavras-chave técnicas da descrição usando o modelo text-bison do Vertex AI.
 
     Args:
-    description (str): Descrição do trabalho ou texto do currículo.
-    pergunta (str): Pergunta a ser feita ao modelo de linguagem.
-    key_word (bool): Se True, retorna as palavras-chave; caso contrário, retorna o texto completo.
+        description (str): Descrição do trabalho ou texto do currículo.
+        pergunta (str): Pergunta a ser feita ao modelo de linguagem.
+        key_word (bool): Se True, retorna as palavras-chave; caso contrário, retorna o texto completo.
 
     Returns:
-    list or str: Lista de palavras-chave ou texto extraído.
+        list or str: Lista de palavras-chave ou texto extraído.
     """
     temperature = 1
     parameters = {
@@ -69,17 +74,17 @@ def extract_keywords_from_description(description, pergunta='Quais são todas as
         "top_k": 1,
     }
  
-    texto_trat = description + '\n Q:' + pergunta + '\n A:'
- 
+    texto_trat = f"{description}\nQ: {pergunta}\nA:"
+
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
-      texto_trat,
+        texto_trat,
         **parameters,
     )
     
     resposta = response.text
     if key_word:
-        key_words = resposta.replace('(','').replace(')','').split(',')
+        key_words = [kw.strip() for kw in resposta.replace('(','').replace(')','').split(',')]
     else:
         key_words = resposta.strip()
     return key_words
