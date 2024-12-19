@@ -6,7 +6,7 @@ import vertexai
 from vertexai.language_models import TextGenerationModel
 
 # Carregar as credenciais do Google Cloud a partir de st.secrets
-# Aqui assumimos que st.secrets["GOOGLE_CREDENTIALS"]["json"] é uma string JSON completa.
+# Assegure-se de que st.secrets["GOOGLE_CREDENTIALS"]["json"] contenha o JSON completo da service account.
 service_account_json = st.secrets["GOOGLE_CREDENTIALS"]["json"]
 service_account_info = json.loads(service_account_json)
 credentials = service_account.Credentials.from_service_account_info(service_account_info)
@@ -15,6 +15,7 @@ credentials = service_account.Credentials.from_service_account_info(service_acco
 documentai_client = documentai.DocumentProcessorServiceClient(credentials=credentials)
 
 # Inicializar o cliente do Vertex AI com as credenciais personalizadas
+# Ajuste o projeto e a localização conforme necessário.
 vertexai.init(project='globalhitss-producao', location='us-central1', credentials=credentials)
 
 def process_document(file_path):
@@ -22,7 +23,7 @@ def process_document(file_path):
     Processa um documento PDF usando o Document AI do GCP.
 
     Args:
-        file_path (str): Caminho para o arquivo PDF.
+        file_path (str): Caminho para o arquivo PDF local.
 
     Returns:
         str: Texto extraído do documento.
@@ -30,8 +31,11 @@ def process_document(file_path):
     with open(file_path, 'rb') as file:
         content = file.read()
     
+    # Ajuste as variáveis abaixo de acordo com seu ambiente.
     project_id = 'globalhitss-producao'
-    location = "us"
+    # Verifique a região do seu processador no console do Document AI.
+    # Por exemplo, se o processador estiver em 'us-central1', ajuste abaixo.
+    location = "us-central1"  
     processor_id = 'd3af668f314232de'
 
     name = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
@@ -43,7 +47,10 @@ def process_document(file_path):
         "raw_document": document
     }
 
+    # Executa o processamento do documento
     result = documentai_client.process_document(request=request)
+
+    # Extrair o texto do resultado
     text = ""
     for page in result.document.pages:
         for paragraph in page.paragraphs:
@@ -76,6 +83,7 @@ def extract_keywords_from_description(description, pergunta='Quais são todas as
  
     texto_trat = f"{description}\nQ: {pergunta}\nA:"
 
+    # Se necessário, especifique a versão do modelo, por ex. "text-bison@001".
     model = TextGenerationModel.from_pretrained("text-bison")
     response = model.predict(
         texto_trat,
