@@ -31,7 +31,7 @@ def process_document(file_path):
         content = file.read()
     
     project_id = 'globalhitss-producao'
-    location = "us-central1"  # Ajuste conforme a localização do seu processador
+    location = "us"  # Ajuste conforme a localização do seu processador
     processor_id = 'd3af668f314232de'
 
     name = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
