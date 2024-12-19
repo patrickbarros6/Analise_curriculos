@@ -9,7 +9,7 @@ from processing_utils import extract_contact_info
 from ui_utils import display_results, display_search_results, display_job_analysis, display_resume_bank, display_resume_triage
 
 # Adicione a imagem no cabeçalho
-st.image("img/prototipo-globalhitss.png", use_column_width=True)
+#st.image("img/prototipo-globalhitss.png", use_column_width=True)
 
 st.title("Análise de Currículos")
 
